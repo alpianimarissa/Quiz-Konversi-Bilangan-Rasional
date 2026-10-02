@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Interaktif Bilangan Pecahan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Strict vertical fraction styling */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 4px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .fraction .numerator {
+            border-bottom: 2px solid currentColor;
+            padding-bottom: 2px;
+            display: block;
+        }
+        .fraction .denominator {
+            padding-top: 2px;
+            display: block;
+        }
+        .mixed-fraction {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+        /* Clean number input styling with no spin buttons */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 bg-slate-50">
+
+    <header class="sticky top-0 z-30 bg-indigo-700 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-indigo-600 rounded-xl shadow-inner text-2xl">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Tugas Interaktif Bilangan Pecahan</h1>
+                    <p class="text-xs sm:text-sm text-indigo-200">Latihan Matematika dengan Visual Geometri & Penulisan Pecahan Tegak Lurus</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="btn-generate" onclick="generateNewQuestions()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg shadow transition duration-200 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Acak Soal Baru</span>
+                </button>
+                <button id="btn-check" onclick="checkAllAnswers()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow transition duration-200 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Cek Semua Jawaban</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
+        
+        <!-- Score Board Bar -->
+        <div id="score-board" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left transition-all">
+            <div class="flex items-center gap-4">
+                <div id="score-badge" class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white bg-indigo-600 shadow">
+                    0%
+                </div>
+                <div>
+                    <h3 id="score-title" class="text-lg font-bold text-slate-800">Hasil Evaluasi</h3>
+                    <p id="score-detail" class="text-sm text-slate-600">Kamu telah menjawab 0 dari 0 soal dengan benar.</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="scrollToTop()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-sm transition">
+                    Lihat Pembahasan
+                </button>
+            </div>
+        </div>
+
+        <!-- Section Navigation Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200 text-sm">
+            <button onclick="filterSection('all')" class="tab-btn active px-4 py-2 rounded-xl font-semibold bg-indigo-600 text-white whitespace-nowrap shadow-sm">
+                Semua Soal (1-7)
+            </button>
+            <button onclick="filterSection('sec-1')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                1. Visual & Pecahan Campuran
+            </button>
+            <button onclick="filterSection('sec-2')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                2. Pecahan Senilai & Sederhana
+            </button>
+            <button onclick="filterSection('sec-3')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                3. Membandingkan (&gt;, &lt;)
+            </button>
+            <button onclick="filterSection('sec-4')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                4. Mengurutkan Pecahan
+            </button>
+            <button onclick="filterSection('sec-5')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                5. Pecahan Campuran
+            </button>
+            <button onclick="filterSection('sec-6')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                6. Desimal
+            </button>
+            <button onclick="filterSection('sec-7')" class="tab-btn px-4 py-2 rounded-xl font-semibold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 whitespace-nowrap">
+                7. Persen
+            </button>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container" class="space-y-8">
+            <!-- Questions injected via JS -->
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-slate-500 text-sm">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="font-medium">Modul Latihan Interaktif Bilangan Pecahan Matematika</p>
+            <p class="text-xs text-slate-400 mt-1">Latihan Interaktif Matematika Kelas 5 - 7</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentQuestionsData = [];
+
+        function fHTML(num, den) {
+            return `<span class="fraction"><span class="numerator">${num}</span><span class="denominator">${den}</span></span>`;
+        }
+
+        function mHTML(whole, num, den) {
+            return `<span class="mixed-fraction"><span>${whole}</span><span class="fraction"><span class="numerator">${num}</span><span class="denominator">${den}</span></span></span>`;
+        }
+
+        // SVG GENERATOR 1: Crossed Square Grid (2 Box grid with diagonal splits = 16 triangles total)
+        function createSquareGridSVG(shadedIndices, size = 160) {
+            const w = size;
+            const h = size / 2;
+            const halfW = w / 2;
+
+            const triangles = [
+                // Box 1 (Left)
+                `M0,0 L${halfW/2},${h/2} L0,${h/2} Z`,
+                `M0,0 L${halfW/2},${h/2} L${halfW/2},0 Z`,
+                `M${halfW/2},0 L${halfW/2},${h/2} L${halfW},0 Z`,
+                `M${halfW},0 L${halfW/2},${h/2} L${halfW},${h/2} Z`,
+                `M${halfW},${h/2} L${halfW/2},${h/2} L${halfW},${h} Z`,
+                `M${halfW},${h} L${halfW/2},${h/2} L${halfW/2},${h} Z`,
+                `M${halfW/2},${h} L${halfW/2},${h/2} L0,${h} Z`,
+                `M0,${h} L${halfW/2},${h/2} L0,${h/2} Z`,
+
+                // Box 2 (Right)
+                `M${halfW},0 L${halfW + halfW/2},${h/2} L${halfW},${h/2} Z`,
+                `M${halfW},0 L${halfW + halfW/2},${h/2} L${halfW + halfW/2},0 Z`,
+                `M${halfW + halfW/2},0 L${halfW + halfW/2},${h/2} L${w},0 Z`,
+                `M${w},0 L${halfW + halfW/2},${h/2} L${w},${h/2} Z`,
+                `M${w},${h/2} L${halfW + halfW/2},${h/2} L${w},${h} Z`,
+                `M${w},${h} L${halfW + halfW/2},${h/2} L${halfW + halfW/2},${h} Z`,
+                `M${halfW + halfW/2},${h} L${halfW + halfW/2},${h/2} L${halfW},${h} Z`,
+                `M${halfW},${h} L${halfW + halfW/2},${h/2} L${halfW},${h/2} Z`
+            ];
+
+            let pathElements = triangles.map((d, idx) => {
+                const isShaded = shadedIndices.includes(idx);
+                const fill = isShaded ? '#3b82f6' : '#ffffff';
+                return `<path d="${d}" fill="${fill}" stroke="#1e293b" stroke-width="1.5" />`;
+            });
+
+            return `
+            <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" class="inline-block drop-shadow-sm">
+                <rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="#1e293b" stroke-width="2" />
+                <line x1="${halfW}" y1="0" x2="${halfW}" y2="${h}" stroke="#1e293b" stroke-width="2" />
+                ${pathElements.join('')}
+            </svg>`;
+        }
+
+        // SVG GENERATOR 2: Concentric Wheel / Dartboard (8 sectors * 2 rings = 16 parts)
+        function createDartboardWheelSVG(shadedIndices, size = 130) {
+            const cx = size / 2;
+            const cy = size / 2;
+            const rOuter = size / 2 - 4;
+            const rInner = rOuter * 0.55;
+
+            let paths = [];
+            const sectors = 8;
+            const angleStep = (2 * Math.PI) / sectors;
+
+            let count = 0;
+            for (let i = 0; i < sectors; i++) {
+                const a1 = i * angleStep - Math.PI / 2;
+                const a2 = (i + 1) * angleStep - Math.PI / 2;
+
+                const cos1 = Math.cos(a1), sin1 = Math.sin(a1);
+                const cos2 = Math.cos(a2), sin2 = Math.sin(a2);
+
+                const inX1 = cx + rInner * cos1, inY1 = cy + rInner * sin1;
+                const inX2 = cx + rInner * cos2, inY2 = cy + rInner * sin2;
+                const innerD = `M ${cx} ${cy} L ${inX1} ${inY1} A ${rInner} ${rInner} 0 0 1 ${inX2} ${inY2} Z`;
+                
+                const isInnerShaded = shadedIndices.includes(count);
+                paths.push(`<path d="${innerD}" fill="${isInnerShaded ? '#3b82f6' : '#ffffff'}" stroke="#1e293b" stroke-width="1.5" />`);
+                count++;
+
+                const outX1 = cx + rOuter * cos1, outY1 = cy + rOuter * sin1;
+                const outX2 = cx + rOuter * cos2, outY2 = cy + rOuter * sin2;
+                const outerD = `M ${inX1} ${inY1} L ${outX1} ${outY1} A ${rOuter} ${rOuter} 0 0 1 ${outX2} ${outY2} L ${inX2} ${inY2} A ${rInner} ${rInner} 0 0 0 ${inX1} ${inY1} Z`;
+
+                const isOuterShaded = shadedIndices.includes(count);
+                paths.push(`<path d="${outerD}" fill="${isOuterShaded ? '#3b82f6' : '#ffffff'}" stroke="#1e293b" stroke-width="1.5" />`);
+                count++;
+            }
+
+            return `
+            <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="inline-block drop-shadow-sm">
+                ${paths.join('')}
+            </svg>`;
+        }
+
+        // SVG GENERATOR 3: Triangular Pyramid (16 small triangles)
+        function createPyramidTrianglesSVG(shadedIndices, size = 130) {
+            const h = size - 8;
+            const w = size - 8;
+            const rows = 4;
+            const rowH = h / rows;
+            let triangles = [];
+            let count = 0;
+
+            for (let r = 0; r < rows; r++) {
+                const yTop = 4 + r * rowH;
+                const yBot = 4 + (r + 1) * rowH;
+
+                const numTri = 2 * r + 1;
+                const triW = w / rows;
+
+                const startX = (size - (r + 1) * triW) / 2;
+
+                for (let i = 0; i < numTri; i++) {
+                    let d = '';
+                    if (i % 2 === 0) {
+                        const x1 = startX + (i / 2) * triW;
+                        const x2 = x1 + triW;
+                        const xMid = (x1 + x2) / 2;
+                        d = `M ${xMid},${yTop} L ${x2},${yBot} L ${x1},${yBot} Z`;
+                    } else {
+                        const x1 = startX + Math.floor(i / 2) * triW + triW / 2;
+                        const x2 = x1 + triW;
+                        const xMid = (x1 + x2) / 2;
+                        d = `M ${x1},${yTop} L ${x2},${yTop} L ${xMid},${yBot} Z`;
+                    }
+
+                    const isShaded = shadedIndices.includes(count);
+                    triangles.push(`<path d="${d}" fill="${isShaded ? '#3b82f6' : '#ffffff'}" stroke="#1e293b" stroke-width="1.5" />`);
+                    count++;
+                }
+            }
+
+            return `
+            <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="inline-block drop-shadow-sm">
+                ${triangles.join('')}
+            </svg>`;
+        }
+
+        function generateQuestions() {
+            return [
+                // SECTION 1: VISUAL FRACTIONS (4 QUESTIONS)
+                {
+                    sectionId: 'sec-1',
+                    sectionTitle: '1. Tentukan Nilai Pecahan dari Daerah Terarsir',
+                    subtitle: 'Hitung bagian yang terarsir dengan jeli pada gambar geometri berikut',
+                    questions: [
+                        {
+                            id: 'q1_a',
+                            code: '1a',
+                            type: 'visual_proper',
+                            title: 'Grid Persegi Diagonal',
+                            svg: createSquareGridSVG([0, 1, 3, 5, 6, 8, 10, 12, 14]), // 9 shaded out of 16
+                            correctAnswerNumerator: 9,
+                            correctAnswerDenominator: 16,
+                            explanation: `Gambar terdiri dari 2 kotak persegi yang masing-masing dibagi diagonal menjadi 8 segitiga (total 16 segitiga sama besar). Terdapat 9 segitiga yang terarsir. Maka nilainya adalah <b>${fHTML(9, 16)}</b>.`
+                        },
+                        {
+                            id: 'q1_b',
+                            code: '1b',
+                            type: 'visual_proper',
+                            title: 'Cakram Roda Berlapis',
+                            svg: createDartboardWheelSVG([0, 2, 3, 5, 7, 8, 11, 13, 14, 15]), // 10 shaded out of 16
+                            correctAnswerNumerator: 10,
+                            correctAnswerDenominator: 16,
+                            explanation: `Cakram roda terbagi menjadi 8 sektor &times; 2 lingkaran (total 16 bagian sama besar). Jika dihitung dengan jeli, terdapat 10 bagian terarsir. Nilai pecahannya adalah <b>${fHTML(10, 16)}</b> (atau disederhanakan <b>${fHTML(5, 8)}</b>).`
+                        },
+                        {
+                            id: 'q1_c',
+                            code: '1c',
+                            type: 'visual_proper',
+                            title: 'Piramida Segitiga',
+                            svg: createPyramidTrianglesSVG([0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15]), // 11 shaded out of 16
+                            correctAnswerNumerator: 11,
+                            correctAnswerDenominator: 16,
+                            explanation: `Segitiga besar terbagi menjadi 4 baris segitiga kecil dengan total 16 segitiga (1+3+5+7). Terdapat 11 segitiga terarsir. Maka nilai pecahannya adalah <b>${fHTML(11, 16)}</b>.`
+                        },
+                        {
+                            id: 'q1_d',
+                            code: '1d',
+                            type: 'visual_mixed',
+                            title: 'Pecahan Campuran Visual',
+                            svg: `
+                                <div class="flex flex-wrap items-center justify-center gap-3 bg-slate-100 p-3 rounded-xl">
+                                    ${createSquareGridSVG([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 110)}
+                                    ${createSquareGridSVG([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 110)}
+                                    ${createSquareGridSVG([0,1,2,3,4,6,8,10,12,14], 110)}
+                                </div>
+                            `,
+                            correctWhole: 2,
+                            correctNum: 10,
+                            correctDen: 16,
+                            altNum: 5,
+                            altDen: 8,
+                            explanation: `Terdapat 2 diagram utuh yang terarsir penuh (2), dan 1 diagram terarsir 10 dari 16 bagian (${fHTML(10, 16)}). Nilai pecahan campurannya adalah <b>${mHTML(2, 10, 16)}</b> (atau disederhanakan <b>${mHTML(2, 5, 8)}</b>).`
+                        }
+                    ]
+                },
+
+                // SECTION 2: EQUIVALENT & SIMPLIFIED (4 QUESTIONS)
+                {
+                    sectionId: 'sec-2',
+                    sectionTitle: '2. Pecahan Senilai dan Bentuk Paling Sederhana',
+                    subtitle: 'Menentukan pasangan pecahan senilai dan menyederhanakan pecahan',
+                    questions: [
+                        {
+                            id: 'q2_a',
+                            code: '2A.a',
+                            type: 'equivalent',
+                            num: 4,
+                            den: 7,
+                            explanation: `Pecahan senilai dari ${fHTML(4, 7)} diperoleh dengan mengalikan pembilang dan penyebut dengan angka yang sama (misal &times;2 dan &times;3):<br>• ${fHTML('4 &times; 2', '7 &times; 2')} = <b>${fHTML(8, 14)}</b><br>• ${fHTML('4 &times; 3', '7 &times; 3')} = <b>${fHTML(12, 21)}</b>`
+                        },
+                        {
+                            id: 'q2_b',
+                            code: '2A.b',
+                            type: 'equivalent',
+                            num: 7,
+                            den: 12,
+                            explanation: `Pecahan senilai dari ${fHTML(7, 12)}:<br>• ${fHTML('7 &times; 2', '12 &times; 2')} = <b>${fHTML(14, 24)}</b><br>• ${fHTML('7 &times; 3', '12 &times; 3')} = <b>${fHTML(21, 36)}</b>`
+                        },
+                        {
+                            id: 'q2_c',
+                            code: '2B.a',
+                            type: 'simplify',
+                            num: 54,
+                            den: 90,
+                            correctNum: 3,
+                            correctDen: 5,
+                            explanation: `FPB dari 54 dan 90 adalah 18. Bagi pembilang dan penyebut dengan 18:<br>${fHTML('54 &divide; 18', '90 &divide; 18')} = <b>${fHTML(3, 5)}</b>.`
+                        },
+                        {
+                            id: 'q2_d',
+                            code: '2B.b',
+                            type: 'simplify',
+                            num: 144,
+                            den: 252,
+                            correctNum: 4,
+                            correctDen: 7,
+                            explanation: `FPB dari 144 dan 252 adalah 36. Bagi pembilang dan penyebut dengan 36:<br>${fHTML('144 &divide; 36', '252 &divide; 36')} = <b>${fHTML(4, 7)}</b>.`
+                        }
+                    ]
+                },
+
+                // SECTION 3: COMPARING FRACTIONS (4 QUESTIONS)
+                {
+                    sectionId: 'sec-3',
+                    sectionTitle: '3. Membandingkan Pasangan Pecahan',
+                    subtitle: 'Gunakan lambang > (lebih dari) atau < (kurang dari)',
+                    questions: [
+                        {
+                            id: 'q3_a',
+                            code: '3a',
+                            num1: 4, den1: 9,
+                            num2: 5, den2: 12,
+                            correct: '>',
+                            explanation: `KPK penyebut 9 dan 12 adalah 36:<br>• ${fHTML(4, 9)} = ${fHTML(16, 36)}<br>• ${fHTML(5, 12)} = ${fHTML(15, 36)}<br>Karena 16 &gt; 15, maka <b>${fHTML(4, 9)} &gt; ${fHTML(5, 12)}</b>.`
+                        },
+                        {
+                            id: 'q3_b',
+                            code: '3b',
+                            num1: 5, den1: 8,
+                            num2: 3, den2: 5,
+                            correct: '>',
+                            explanation: `KPK penyebut 8 dan 5 adalah 40:<br>• ${fHTML(5, 8)} = ${fHTML(25, 40)}<br>• ${fHTML(3, 5)} = ${fHTML(24, 40)}<br>Karena 25 &gt; 24, maka <b>${fHTML(5, 8)} &gt; ${fHTML(3, 5)}</b>.`
+                        },
+                        {
+                            id: 'q3_c',
+                            code: '3c',
+                            num1: 2, den1: 7,
+                            num2: 3, den2: 10,
+                            correct: '<',
+                            explanation: `KPK penyebut 7 dan 10 adalah 70:<br>• ${fHTML(2, 7)} = ${fHTML(20, 70)}<br>• ${fHTML(3, 10)} = ${fHTML(21, 70)}<br>Karena 20 &lt; 21, maka <b>${fHTML(2, 7)} &lt; ${fHTML(3, 10)}</b>.`
+                        },
+                        {
+                            id: 'q3_d',
+                            code: '3d',
+                            num1: 5, den1: 6,
+                            num2: 7, den2: 8,
+                            correct: '<',
+                            explanation: `KPK penyebut 6 dan 8 adalah 24:<br>• ${fHTML(5, 6)} = ${fHTML(20, 24)}<br>• ${fHTML(7, 8)} = ${fHTML(21, 24)}<br>Karena 20 &lt; 21, maka <b>${fHTML(5, 6)} &lt; ${fHTML(7, 8)}</b>.`
+                        }
+                    ]
+                },
+
+                // SECTION 4: ORDERING FRACTIONS (4 QUESTIONS)
+                {
+                    sectionId: 'sec-4',
+                    sectionTitle: '4. Mengurutkan Deretan Pecahan',
+                    subtitle: 'Menyusun pecahan dalam urutan naik atau urutan turun',
+                    questions: [
+                        {
+                            id: 'q4_a',
+                            code: '4A.a',
+                            title: 'Susunlah pecahan berikut dalam URUTAN NAIK (terkecil ke terbesar):',
+                            list: [{num: 2, den: 5}, {num: 1, den: 2}, {num: 3, den: 8}],
+                            correctOrder: ['3/8', '2/5', '1/2'],
+                            explanation: `Samakan penyebut ke KPK 40:<br>• ${fHTML(2, 5)} = ${fHTML(16, 40)}<br>• ${fHTML(1, 2)} = ${fHTML(20, 40)}<br>• ${fHTML(3, 8)} = ${fHTML(15, 40)}<br>Urutan naik: <b>${fHTML(3, 8)} , ${fHTML(2, 5)} , ${fHTML(1, 2)}</b>.`
+                        },
+                        {
+                            id: 'q4_b',
+                            code: '4A.b',
+                            title: 'Susunlah pecahan berikut dalam URUTAN NAIK (terkecil ke terbesar):',
+                            list: [{num: 5, den: 6}, {num: 3, den: 4}, {num: 7, den: 10}],
+                            correctOrder: ['7/10', '3/4', '5/6'],
+                            explanation: `Samakan penyebut ke KPK 60:<br>• ${fHTML(5, 6)} = ${fHTML(50, 60)}<br>• ${fHTML(3, 4)} = ${fHTML(45, 60)}<br>• ${fHTML(7, 10)} = ${fHTML(42, 60)}<br>Urutan naik: <b>${fHTML(7, 10)} , ${fHTML(3, 4)} , ${fHTML(5, 6)}</b>.`
+                        },
+                        {
+                            id: 'q4_c',
+                            code: '4B.a',
+                            title: 'Susunlah pecahan berikut dalam URUTAN TURUN (terbesar ke terkecil):',
+                            list: [{num: 3, den: 5}, {num: 2, den: 3}, {num: 7, den: 15}],
+                            correctOrder: ['2/3', '3/5', '7/15'],
+                            explanation: `Samakan penyebut ke KPK 15:<br>• ${fHTML(3, 5)} = ${fHTML(9, 15)}<br>• ${fHTML(2, 3)} = ${fHTML(10, 15)}<br>• ${fHTML(7, 15)} = ${fHTML(7, 15)}<br>Urutan turun: <b>${fHTML(2, 3)} , ${fHTML(3, 5)} , ${fHTML(7, 15)}</b>.`
+                        },
+                        {
+                            id: 'q4_d',
+                            code: '4B.b',
+                            title: 'Susunlah pecahan berikut dalam URUTAN TURUN (terbesar ke terkecil):',
+                            list: [{num: 5, den: 8}, {num: 3, den: 4}, {num: 9, den: 16}],
+                            correctOrder: ['3/4', '5/8', '9/16'],
+                            explanation: `Samakan penyebut ke KPK 16:<br>• ${fHTML(5, 8)} = ${fHTML(10, 16)}<br>• ${fHTML(3, 4)} = ${fHTML(12, 16)}<br>• ${fHTML(9, 16)} = ${fHTML(9, 16)}<br>Urutan turun: <b>${fHTML(3, 4)} , ${fHTML(5, 8)} , ${fHTML(9, 16)}</b>.`
+                        }
+                    ]
+                },
+
+                // SECTION 5: MIXED FRACTIONS CONVERSION (4 QUESTIONS)
+                {
+                    sectionId: 'sec-5',
+                    sectionTitle: '5. Konversi Pecahan Biasa & Pecahan Campuran',
+                    subtitle: 'Mengubah bentuk pecahan tak sejati ke campuran dan sebaliknya',
+                    questions: [
+                        {
+                            id: 'q5_a',
+                            code: '5A.a',
+                            title: 'Nyatakan sebagai pecahan campuran:',
+                            num: 83, den: 9,
+                            correctWhole: 9, correctNum: 2, correctDen: 9,
+                            explanation: `83 &divide; 9 = 9 sisa 2. Maka ${fHTML(83, 9)} = <b>${mHTML(9, 2, 9)}</b>.`
+                        },
+                        {
+                            id: 'q5_b',
+                            code: '5A.b',
+                            title: 'Nyatakan sebagai pecahan campuran:',
+                            num: 94, den: 15,
+                            correctWhole: 6, correctNum: 4, correctDen: 15,
+                            explanation: `94 &divide; 15 = 6 sisa 4. Maka ${fHTML(94, 15)} = <b>${mHTML(6, 4, 15)}</b>.`
+                        },
+                        {
+                            id: 'q5_c',
+                            code: '5B.a',
+                            title: 'Nyatakan sebagai pecahan biasa:',
+                            whole: 7, num: 4, den: 11,
+                            correctNum: 81, correctDen: 11,
+                            explanation: `(7 &times; 11) + 4 = 77 + 4 = 81. Maka ${mHTML(7, 4, 11)} = <b>${fHTML(81, 11)}</b>.`
+                        },
+                        {
+                            id: 'q5_d',
+                            code: '5B.b',
+                            title: 'Nyatakan sebagai pecahan biasa:',
+                            isNegative: true,
+                            whole: -9, num: 3, den: 8,
+                            correctNum: -75, correctDen: 8,
+                            explanation: `- ( (9 &times; 8) + 3 ) / 8 = - (72 + 3) / 8 = <b>-${fHTML(75, 8)}</b>.`
+                        }
+                    ]
+                },
+
+                // SECTION 6: DECIMAL CONVERSION (4 QUESTIONS)
+                {
+                    sectionId: 'sec-6',
+                    sectionTitle: '6. Konversi Pecahan ke Desimal & Sebaliknya',
+                    subtitle: 'Mengubah pecahan ke bentuk desimal dan angka desimal ke pecahan',
+                    questions: [
+                        {
+                            id: 'q6_a',
+                            code: '6A.a',
+                            title: `Nyatakan ${fHTML(9, 16)} sebagai pecahan desimal:`,
+                            correctDec: '0.5625',
+                            explanation: '9 &divide; 16 = <b>0.5625</b> (bisa ditulis 0.5625 atau 0,5625).'
+                        },
+                        {
+                            id: 'q6_b',
+                            code: '6A.b',
+                            title: `Nyatakan ${mHTML(3, 5, 8)} sebagai pecahan desimal:`,
+                            correctDec: '3.625',
+                            explanation: '5 &divide; 8 = 0.625. Maka 3 + 0.625 = <b>3.625</b>.'
+                        },
+                        {
+                            id: 'q6_c',
+                            code: '6B.a',
+                            title: 'Nyatakan desimal 6,64 sebagai pecahan biasa / campuran paling sederhana:',
+                            correctWhole: 6, correctNum: 16, correctDen: 25,
+                            altNum: 166, altDen: 25,
+                            explanation: `6,64 = ${mHTML(6, 64, 100)} = <b>${mHTML(6, 16, 25)}</b> (atau <b>${fHTML(166, 25)}</b>).`
+                        },
+                        {
+                            id: 'q6_d',
+                            code: '6B.b',
+                            title: 'Nyatakan desimal 4,025 sebagai pecahan biasa / campuran paling sederhana:',
+                            correctWhole: 4, correctNum: 1, correctDen: 40,
+                            altNum: 161, altDen: 40,
+                            explanation: `4,025 = ${mHTML(4, 25, 1000)} = <b>${mHTML(4, 1, 40)}</b> (atau <b>${fHTML(161, 40)}</b>).`
+                        }
+                    ]
+                },
+
+                // SECTION 7: PERCENT CONVERSION (4 QUESTIONS)
+                {
+                    sectionId: 'sec-7',
+                    sectionTitle: '7. Pecahan dan Persen',
+                    subtitle: 'Mengubah pecahan ke persen dan persen ke pecahan sederhana',
+                    questions: [
+                        {
+                            id: 'q7_a',
+                            code: '7A.a',
+                            title: `Nyatakan ${fHTML(7, 8)} dalam bentuk persen (%):`,
+                            correctAns: '87.5',
+                            altAns: '87.5%',
+                            explanation: `(${fHTML(7, 8)}) &times; 100% = <b>87.5%</b>.`
+                        },
+                        {
+                            id: 'q7_b',
+                            code: '7A.b',
+                            title: `Nyatakan ${fHTML(9, 40)} dalam bentuk persen (%):`,
+                            correctAns: '22.5',
+                            altAns: '22.5%',
+                            explanation: `(${fHTML(9, 40)}) &times; 100% = <b>22.5%</b>.`
+                        },
+                        {
+                            id: 'q7_c',
+                            code: '7B.a',
+                            title: `Nyatakan ${mHTML(41, 2, 3)} % sebagai pecahan biasa paling sederhana:`,
+                            correctNum: 5, correctDen: 12,
+                            explanation: `${mHTML(41, 2, 3)} % = (${fHTML(125, 3)}) &divide; 100 = ${fHTML(125, 300)} = <b>${fHTML(5, 12)}</b>.`
+                        },
+                        {
+                            id: 'q7_d',
+                            code: '7B.b',
+                            title: `Nyatakan ${mHTML(31, 1, 4)} % sebagai pecahan biasa paling sederhana:`,
+                            correctNum: 5, correctDen: 16,
+                            explanation: `${mHTML(31, 1, 4)} % = (${fHTML(125, 4)}) &divide; 100 = ${fHTML(125, 400)} = <b>${fHTML(5, 16)}</b>.`
+                        }
+                    ]
+                }
+            ];
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            currentQuestionsData.forEach((sec) => {
+                const sectionEl = document.createElement('section');
+                sectionEl.id = sec.sectionId;
+                sectionEl.className = 'question-section bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6';
+
+                let sectionHTML = `
+                    <div class="border-b border-slate-200 pb-4">
+                        <h2 class="text-xl font-extrabold text-indigo-900 flex items-center gap-2">
+                            <span>${sec.sectionTitle}</span>
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">${sec.subtitle}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                `;
+
+                sec.questions.forEach((q) => {
+                    sectionHTML += renderSingleQuestionCard(q);
+                });
+
+                sectionHTML += `</div>`;
+                sectionEl.innerHTML = sectionHTML;
+                container.appendChild(sectionEl);
+            });
+        }
+
+        function renderSingleQuestionCard(q) {
+            let bodyContent = '';
+
+            if (q.type === 'visual_proper') {
+                bodyContent = `
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center">${q.svg}</div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_num" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1.5 font-bold focus:border-indigo-500 focus:outline-none text-slate-800">
+                                <div class="w-12 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_den" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1.5 font-bold focus:border-indigo-500 focus:outline-none text-slate-800">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.type === 'visual_mixed') {
+                bodyContent = `
+                    <div class="flex flex-col items-center gap-4">
+                        <div>${q.svg}</div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="${q.id}_w" class="w-14 text-center border-2 border-slate-300 rounded-lg p-2 font-bold text-lg focus:border-indigo-500 focus:outline-none text-slate-800">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_num" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none text-slate-800">
+                                <div class="w-10 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_den" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none text-slate-800">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.type === 'equivalent') {
+                bodyContent = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-lg text-slate-700">Pecahan:</span>
+                            <span class="text-xl">${fHTML(q.num, q.den)}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_n1" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-semibold focus:border-indigo-500 focus:outline-none">
+                                <div class="w-10 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_d1" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-semibold focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <span class="text-slate-400 font-bold">dan</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_n2" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-semibold focus:border-indigo-500 focus:outline-none">
+                                <div class="w-10 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_d2" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-semibold focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.type === 'simplify') {
+                bodyContent = `
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">${fHTML(q.num, q.den)}</span>
+                            <span class="text-2xl font-bold text-slate-400">=</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="number" id="${q.id}_num" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                            <div class="w-12 h-0.5 bg-slate-800 my-1"></div>
+                            <input type="number" id="${q.id}_den" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                `;
+            } else if (q.id.startsWith('q3_')) {
+                bodyContent = `
+                    <div class="flex items-center justify-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-xl">${fHTML(q.num1, q.den1)}</span>
+                        
+                        <select id="${q.id}_ans" class="px-4 py-2 border-2 border-slate-300 rounded-lg font-bold text-xl bg-white focus:border-indigo-500 focus:outline-none">
+                            <option value=""></option>
+                            <option value=">">&gt;</option>
+                            <option value="<">&lt;</option>
+                        </select>
+
+                        <span class="text-xl">${fHTML(q.num2, q.den2)}</span>
+                    </div>
+                `;
+            } else if (q.id.startsWith('q4_')) {
+                bodyContent = `
+                    <div class="space-y-3">
+                        <p class="text-sm font-medium text-slate-700">${q.title}</p>
+                        <div class="flex gap-4 justify-center items-center bg-indigo-50 p-3 rounded-xl text-indigo-900 font-bold text-lg">
+                            ${q.list.map(f => fHTML(f.num, f.den)).join(' <span class="mx-1 text-slate-400">,</span> ')}
+                        </div>
+                        <div>
+                            <input type="text" id="${q.id}_ans" class="w-full border-2 border-slate-300 rounded-lg p-2.5 font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q5_a' || q.id === 'q5_b') {
+                bodyContent = `
+                    <div class="space-y-3">
+                        <p class="text-sm text-slate-600">${q.title}</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${fHTML(q.num, q.den)}</span>
+                            <span class="text-2xl font-bold text-slate-400">=</span>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="${q.id}_w" class="w-14 text-center border-2 border-slate-300 rounded-lg p-2 font-bold text-lg focus:border-indigo-500 focus:outline-none">
+                                <div class="flex flex-col items-center">
+                                    <input type="number" id="${q.id}_num" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                                    <div class="w-10 h-0.5 bg-slate-800 my-1"></div>
+                                    <input type="number" id="${q.id}_den" class="w-14 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q5_c' || q.id === 'q5_d') {
+                bodyContent = `
+                    <div class="space-y-3">
+                        <p class="text-sm text-slate-600">${q.title}</p>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${mHTML(q.whole, q.num, q.den)}</span>
+                            <span class="text-2xl font-bold text-slate-400">=</span>
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_num" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                                <div class="w-12 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_den" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q6_a' || q.id === 'q6_b') {
+                bodyContent = `
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-slate-700 flex items-center gap-2">${q.title}</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="${q.id}_ans" class="w-40 border-2 border-slate-300 rounded-lg p-2 font-bold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q6_c' || q.id === 'q6_d') {
+                bodyContent = `
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-slate-700">${q.title}</p>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="${q.id}_w" class="w-14 text-center border-2 border-slate-300 rounded-lg p-2 font-bold text-lg focus:border-indigo-500 focus:outline-none">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_num" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                                <div class="w-12 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_den" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q7_a' || q.id === 'q7_b') {
+                bodyContent = `
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-slate-700 flex items-center gap-2">${q.title}</p>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="${q.id}_ans" class="w-32 border-2 border-slate-300 rounded-lg p-2 font-bold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                            <span class="font-extrabold text-indigo-700 text-lg">%</span>
+                        </div>
+                    </div>
+                `;
+            } else if (q.id === 'q7_c' || q.id === 'q7_d') {
+                bodyContent = `
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-slate-700 flex items-center gap-2">${q.title}</p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex flex-col items-center">
+                                <input type="number" id="${q.id}_num" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                                <div class="w-12 h-0.5 bg-slate-800 my-1"></div>
+                                <input type="number" id="${q.id}_den" class="w-16 text-center border-2 border-slate-300 rounded-lg p-1 font-bold focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div id="card_${q.id}" class="q-card border border-slate-200 rounded-xl p-5 hover:border-indigo-300 transition-all flex flex-col justify-between space-y-4 bg-white relative">
+                    <div class="flex justify-between items-start gap-2">
+                        <span class="inline-block px-2.5 py-1 bg-indigo-100 text-indigo-800 text-xs font-bold rounded-md">Soal ${q.code}</span>
+                        <div id="status_${q.id}" class="hidden text-xs font-bold px-2 py-1 rounded-md"></div>
+                    </div>
+
+                    <div class="flex-grow flex flex-col justify-center">
+                        ${bodyContent}
+                    </div>
+
+                    <div id="exp_${q.id}" class="hidden mt-3 p-3 bg-indigo-50/80 border border-indigo-100 rounded-lg text-xs text-indigo-950 space-y-1">
+                        <div class="font-bold text-indigo-900 flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i> Pembahasan:
+                        </div>
+                        <div>${q.explanation}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAllAnswers() {
+            let total = 0;
+            let correctCount = 0;
+
+            currentQuestionsData.forEach(sec => {
+                sec.questions.forEach(q => {
+                    total++;
+                    let isCorrect = false;
+
+                    const statusEl = document.getElementById(`status_${q.id}`);
+                    const expEl = document.getElementById(`exp_${q.id}`);
+                    const cardEl = document.getElementById(`card_${q.id}`);
+
+                    if (q.type === 'visual_proper') {
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value);
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value);
+                        if (numVal === q.correctAnswerNumerator && denVal === q.correctAnswerDenominator) {
+                            isCorrect = true;
+                        }
+                    } else if (q.type === 'visual_mixed') {
+                        const wVal = parseInt(document.getElementById(`${q.id}_w`).value) || 0;
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value) || 0;
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value) || 0;
+
+                        if (wVal === q.correctWhole && 
+                           ((numVal === q.correctNum && denVal === q.correctDen) || 
+                            (q.altNum && numVal === q.altNum && denVal === q.altDen))) {
+                            isCorrect = true;
+                        }
+                    } else if (q.type === 'equivalent') {
+                        const n1 = parseInt(document.getElementById(`${q.id}_n1`).value);
+                        const d1 = parseInt(document.getElementById(`${q.id}_d1`).value);
+                        const n2 = parseInt(document.getElementById(`${q.id}_n2`).value);
+                        const d2 = parseInt(document.getElementById(`${q.id}_d2`).value);
+
+                        const targetVal = q.num / q.den;
+                        if (n1 && d1 && n2 && d2 && 
+                            Math.abs((n1/d1) - targetVal) < 0.0001 && 
+                            Math.abs((n2/d2) - targetVal) < 0.0001 &&
+                            (n1 !== q.num || d1 !== q.den) &&
+                            (n1 !== n2 || d1 !== d2)) {
+                            isCorrect = true;
+                        }
+                    } else if (q.type === 'simplify') {
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value);
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value);
+                        if (numVal === q.correctNum && denVal === q.correctDen) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id.startsWith('q3_')) {
+                        const val = document.getElementById(`${q.id}_ans`).value;
+                        if (val === q.correct) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id.startsWith('q4_')) {
+                        const raw = document.getElementById(`${q.id}_ans`).value.trim().replaceAll(' ', '');
+                        const target = q.correctOrder.join(',').replaceAll(' ', '');
+                        if (raw === target) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q5_a' || q.id === 'q5_b') {
+                        const wVal = parseInt(document.getElementById(`${q.id}_w`).value);
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value);
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value);
+                        if (wVal === q.correctWhole && 
+                           ((numVal === q.correctNum && denVal === q.correctDen) || 
+                            (q.altNum && numVal === q.altNum && denVal === q.altDen))) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q5_c' || q.id === 'q5_d') {
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value);
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value);
+                        if (numVal === q.correctNum && denVal === q.correctDen) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q6_a' || q.id === 'q6_b') {
+                        const val = document.getElementById(`${q.id}_ans`).value.replace(',', '.').trim();
+                        if (val === q.correctDec) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q6_c' || q.id === 'q6_d') {
+                        const wVal = parseInt(document.getElementById(`${q.id}_w`).value) || 0;
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value) || 0;
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value) || 0;
+
+                        if ((wVal === q.correctWhole && numVal === q.correctNum && denVal === q.correctDen) ||
+                            (wVal === 0 && numVal === q.altNum && denVal === q.altDen)) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q7_a' || q.id === 'q7_b') {
+                        const val = document.getElementById(`${q.id}_ans`).value.replace(',', '.').trim();
+                        if (val === q.correctAns || (q.altAns && val === q.altAns)) {
+                            isCorrect = true;
+                        }
+                    } else if (q.id === 'q7_c' || q.id === 'q7_d') {
+                        const numVal = parseInt(document.getElementById(`${q.id}_num`).value);
+                        const denVal = parseInt(document.getElementById(`${q.id}_den`).value);
+                        if (numVal === q.correctNum && denVal === q.correctDen) {
+                            isCorrect = true;
+                        }
+                    }
+
+                    if (statusEl && expEl && cardEl) {
+                        statusEl.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+                        expEl.classList.remove('hidden');
+
+                        if (isCorrect) {
+                            correctCount++;
+                            statusEl.classList.add('bg-emerald-100', 'text-emerald-800');
+                            statusEl.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Benar';
+                            cardEl.classList.add('ring-2', 'ring-emerald-400');
+                            cardEl.classList.remove('ring-2', 'ring-rose-400');
+                        } else {
+                            statusEl.classList.add('bg-rose-100', 'text-rose-800');
+                            statusEl.innerHTML = '<i class="fa-solid fa-xmark mr-1"></i> Salah';
+                            cardEl.classList.add('ring-2', 'ring-rose-400');
+                            cardEl.classList.remove('ring-2', 'ring-emerald-400');
+                        }
+                    }
+                });
+            });
+
+            // Show Score Board
+            const scoreBoard = document.getElementById('score-board');
+            const scoreBadge = document.getElementById('score-badge');
+            const scoreTitle = document.getElementById('score-title');
+            const scoreDetail = document.getElementById('score-detail');
+
+            const scorePercent = Math.round((correctCount / total) * 100);
+            scoreBadge.innerText = `${scorePercent}%`;
+            
+            if (scorePercent === 100) {
+                scoreBadge.className = 'w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-extrabold text-white bg-emerald-500 shadow-lg';
+                scoreTitle.innerText = 'Sempurna! Perfect Score 🎉';
+            } else if (scorePercent >= 70) {
+                scoreBadge.className = 'w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-extrabold text-white bg-indigo-600 shadow-lg';
+                scoreTitle.innerText = 'Bagus Sekali! 👍';
+            } else {
+                scoreBadge.className = 'w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-extrabold text-white bg-amber-500 shadow-lg';
+                scoreTitle.innerText = 'Ayo Latihan Lagi! 💪';
+            }
+
+            scoreDetail.innerText = `Kamu berhasil menjawab ${correctCount} dari ${total} soal dengan benar. Silakan cek pembahasan di bawah tiap soal!`;
+            scoreBoard.classList.remove('hidden');
+            scoreBoard.classList.add('flex');
+            scoreBoard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateNewQuestions() {
+            currentQuestionsData = generateQuestions();
+            renderQuestions();
+
+            const scoreBoard = document.getElementById('score-board');
+            scoreBoard.classList.add('hidden');
+            scoreBoard.classList.remove('flex');
+
+            scrollToTop();
+        }
+
+        function filterSection(sectionId) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => {
+                t.classList.remove('bg-indigo-600', 'text-white');
+                t.classList.add('bg-white', 'text-slate-600');
+            });
+
+            event.currentTarget.classList.remove('bg-white', 'text-slate-600');
+            event.currentTarget.classList.add('bg-indigo-600', 'text-white');
+
+            const sections = document.querySelectorAll('.question-section');
+            sections.forEach(sec => {
+                if (sectionId === 'all' || sec.id === sectionId) {
+                    sec.classList.remove('hidden');
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            generateNewQuestions();
+        };
+    </script>
+</body>
+</html>
